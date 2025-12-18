@@ -1,0 +1,83 @@
+{{ 'section-featured-products.css' | asset_url | stylesheet_tag }}
+
+<featured-products class="featured-products" data-section-id="{{ section.id }}">
+  <div class="featured-products__outer">
+    <div class="featured-products__container page-width">
+      {% if section.settings.heading != blank %}
+        <h2 class="featured-products__heading {{ section.settings.heading_size }}">
+          {{ section.settings.heading | escape }}
+        </h2>
+      {% endif %}
+
+      {% assign collection = section.settings.collection %}
+
+      {% if collection != blank and collection.products_count > 0 %}
+        <ul class="featured-products__list" role="list">
+          {% for product in collection.products limit: section.settings.products_limit %}
+            {% assign v = product.selected_or_first_available_variant %}
+            <li class="featured-products__item">
+              <a class="featured-products__card" href="{{ product.url }}">
+                {% if product.featured_image %}
+                  <div class="featured-products__media">
+                    {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', class: 'featured-products__image' }}
+                  </div>
+                {% endif %}
+
+                <div class="featured-products__meta">
+                  <p class="featured-products__title">{{ product.title | escape }}</p>
+                  <p class="featured-products__price">{{ product.price | money }}</p>
+                </div>
+              </a>
+
+              <button
+                class="featured-products__add button button--primary"
+                type="button"
+                data-variant-id="{{ v.id }}"
+                {% unless v.available %}disabled{% endunless %}
+              >
+                {% if v.available %}
+                  {{ 'products.product.add_to_cart' | t }}
+                {% else %}
+                  {{ 'products.product.sold_out' | t }}
+                {% endif %}
+              </button>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="featured-products__empty">
+          {% if collection == blank %}
+            Select a collection in the section settings.
+          {% else %}
+            No products in the selected collection.
+          {% endif %}
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</featured-products>
+
+{% schema %}
+{
+  "name": "Featured products",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Featured products" },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "default": "h1",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" }
+      ]
+    },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "products_limit", "label": "Products limit", "min": 2, "max": 12, "step": 1, "default": 4 }
+  ],
+  "presets": [{ "name": "Featured products (collection)" }]
+}
+{% endschema %}
