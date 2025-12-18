@@ -1,4 +1,5 @@
 {{ 'section-featured-products.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'featured-products.js' | asset_url }}" defer></script>
 
 <featured-products class="featured-products" data-section-id="{{ section.id }}">
   <div class="featured-products__outer">
@@ -78,6 +79,6 @@
     { "type": "collection", "id": "collection", "label": "Collection" },
     { "type": "range", "id": "products_limit", "label": "Products limit", "min": 2, "max": 12, "step": 1, "default": 4 }
   ],
-  "presets": [{ "name": "Featured products (collection)" }]
+  "presets": [{ "name": "Featured products" }]
 }
 {% endschema %}
