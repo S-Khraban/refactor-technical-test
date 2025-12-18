@@ -2,6 +2,7 @@ class FeaturedProducts extends HTMLElement {
   constructor() {
     super();
     this.onClick = this.onClick.bind(this);
+    this._busy = false;
   }
 
   connectedCallback() {
@@ -35,8 +36,9 @@ class FeaturedProducts extends HTMLElement {
     const cartDrawer = document.querySelector('cart-drawer');
     if (!cartDrawer || typeof cartDrawer.renderContents !== 'function') return false;
 
-    const res = await fetch(`${this.root}?sections=cart-drawer,cart-icon-bubble`, {
+    const res = await fetch(`${this.root}?sections=cart-drawer,cart-icon-bubble&_=${Date.now()}`, {
       headers: { Accept: 'application/json' },
+      cache: 'no-store',
     });
     if (!res.ok) return false;
 
@@ -49,8 +51,9 @@ class FeaturedProducts extends HTMLElement {
   }
 
   async refreshHeader() {
-    const res = await fetch(`${this.root}?sections=header`, {
+    const res = await fetch(`${this.root}?sections=header&_=${Date.now()}`, {
       headers: { Accept: 'application/json' },
+      cache: 'no-store',
     });
     if (!res.ok) return false;
 
@@ -73,25 +76,50 @@ class FeaturedProducts extends HTMLElement {
   removeAddedItem(btn) {
     const item =
       btn.closest('.featured-products__item') || btn.closest('li') || btn.closest('article');
-
     if (item) item.remove();
+  }
+
+  async refreshSelfSection() {
+    const sectionId = this.dataset.sectionId;
+    if (!sectionId) return false;
+
+    const res = await fetch(
+      `${this.root}?sections=${encodeURIComponent(sectionId)}&_=${Date.now()}`,
+      { headers: { Accept: 'application/json' }, cache: 'no-store' }
+    );
+    if (!res.ok) return false;
+
+    const sections = await res.json().catch(() => null);
+    const html = sections?.[sectionId];
+    if (!html) return false;
+
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const next = doc.querySelector('featured-products');
+    if (!next) return false;
+
+    this.innerHTML = next.innerHTML;
+    return true;
   }
 
   async onClick(e) {
     const btn = e.target.closest('[data-variant-id]');
-    if (!btn || !this.contains(btn)) return;
+    if (!btn || !this.contains(btn) || this._busy) return;
 
     e.preventDefault();
 
     const variantId = btn.dataset.variantId;
     if (!variantId) return;
 
+    this._busy = true;
     btn.setAttribute('aria-busy', 'true');
     btn.disabled = true;
 
     try {
       await this.addToCart(variantId);
+
       this.removeAddedItem(btn);
+      const sectionUpdated = await this.refreshSelfSection();
+      if (!sectionUpdated && this.contains(btn)) btn.disabled = false;
 
       const drawerUpdated = await this.refreshDrawer();
       if (!drawerUpdated) {
@@ -99,9 +127,10 @@ class FeaturedProducts extends HTMLElement {
       }
     } catch (err) {
       console.error('[FeaturedProducts] addToCart error:', err);
-      btn.disabled = false;
+      if (this.contains(btn)) btn.disabled = false;
     } finally {
-      btn.removeAttribute('aria-busy');
+      this._busy = false;
+      if (this.contains(btn)) btn.removeAttribute('aria-busy');
     }
   }
 }

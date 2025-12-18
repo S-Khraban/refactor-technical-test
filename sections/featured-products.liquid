@@ -12,37 +12,62 @@
 
       {% assign collection = collections[section.settings.collection] %}
 
+      {% assign cart_variant_ids = ',' %}
+      {% for item in cart.items %}
+        {% assign cart_variant_ids = cart_variant_ids | append: item.variant_id | append: ',' %}
+      {% endfor %}
+
       {% if collection != blank and collection.products_count > 0 %}
         <ul class="featured-products__list" role="list">
-          {% for product in collection.products limit: section.settings.products_limit %}
-            {% assign v = product.selected_or_first_available_variant %}
-            <li class="featured-products__item">
-              <a class="featured-products__card" href="{{ product.url }}">
-                {% if product.featured_image %}
-                  <div class="featured-products__media">
-                    {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', class: 'featured-products__image' }}
+          {% assign shown = 0 %}
+          {% assign limit = section.settings.products_limit %}
+
+          {% for product in collection.products %}
+            {% if shown >= limit %}
+              {% break %}
+            {% endif %}
+
+            {% assign hide_product = false %}
+            {% for pv in product.variants %}
+              {% assign needle = pv.id | append: ',' %}
+              {% if cart_variant_ids contains needle %}
+                {% assign hide_product = true %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+
+            {% unless hide_product %}
+              {% assign v = product.selected_or_first_available_variant %}
+              <li class="featured-products__item">
+                <a class="featured-products__card" href="{{ product.url }}">
+                  {% if product.featured_image %}
+                    <div class="featured-products__media">
+                      {{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', class: 'featured-products__image' }}
+                    </div>
+                  {% endif %}
+
+                  <div class="featured-products__meta">
+                    <p class="featured-products__title">{{ product.title | escape }}</p>
+                    <p class="featured-products__price">{{ product.price | money }}</p>
                   </div>
-                {% endif %}
+                </a>
 
-                <div class="featured-products__meta">
-                  <p class="featured-products__title">{{ product.title | escape }}</p>
-                  <p class="featured-products__price">{{ product.price | money }}</p>
-                </div>
-              </a>
+                <button
+                  class="featured-products__add button button--primary"
+                  type="button"
+                  data-variant-id="{{ v.id }}"
+                  {% unless v.available %}disabled{% endunless %}
+                >
+                  {% if v.available %}
+                    {{ 'products.product.add_to_cart' | t }}
+                  {% else %}
+                    {{ 'products.product.sold_out' | t }}
+                  {% endif %}
+                </button>
+              </li>
 
-              <button
-                class="featured-products__add button button--primary"
-                type="button"
-                data-variant-id="{{ v.id }}"
-                {% unless v.available %}disabled{% endunless %}
-              >
-                {% if v.available %}
-                  {{ 'products.product.add_to_cart' | t }}
-                {% else %}
-                  {{ 'products.product.sold_out' | t }}
-                {% endif %}
-              </button>
-            </li>
+              {% assign shown = shown | plus: 1 %}
+            {% endunless %}
           {% endfor %}
         </ul>
       {% else %}
