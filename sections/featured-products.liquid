@@ -10,7 +10,7 @@
         </h2>
       {% endif %}
 
-      {% assign collection = section.settings.collection %}
+      {% assign collection = collections[section.settings.collection] %}
 
       {% if collection != blank and collection.products_count > 0 %}
         <ul class="featured-products__list" role="list">
