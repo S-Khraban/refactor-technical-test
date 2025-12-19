@@ -1,35 +1,128 @@
+.featured-products {
+  font-family: "Gothic A1", sans-serif;
+}
+
 .featured-products__outer {
   background: #f5f5f5;
   padding: 32px 0;
 }
 
 .featured-products__container {
-  background: #fff;
-  padding: 24px 16px;
+  background: #ffffff;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 43px 16px 0;
 }
 
 .featured-products__heading {
-  margin: 0 0 24px;
+  margin: 0;
   text-align: center;
+  font-weight: 900;
+  font-size: 26px;
+  line-height: 36px;
+  color: #656874;
 }
 
 .featured-products__list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
-  margin: 0;
+  row-gap: 50px;
+  margin: 30px 0 60px;
   padding: 0;
   list-style: none;
 }
 
-@media (min-width: 750px) {
+.featured-products__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.featured-products__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 375px;
+  text-decoration: none;
+}
+
+.featured-products__media {
+  width: 100%;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.featured-products__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.featured-products__meta {
+  margin: 30px 0 11px;
+  text-align: center;
+}
+
+.featured-products__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 42px;
+  color: #656874;
+}
+
+.featured-products__add-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.featured-products .featured-products__add.button.button--primary {
+  width: 285px;
+  height: 62px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #464B90;
+  border: 1px solid #464B90;
+  border-radius: 40px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+  color: #ffffff;
+}
+
+.featured-products .featured-products__add.button.button--primary::after {
+  content: none;
+}
+
+@media (min-width: 1080px) {
   .featured-products__container {
-    max-width: 1360px;
-    margin: 0 auto;
-    padding: 32px;
+    padding: 80px 24px 0;
+  }
+
+  .featured-products__heading {
+    font-size: 42px;
+    line-height: 42px;
   }
 
   .featured-products__list {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 520px);
+    column-gap: 40px;
+    row-gap: 119px;
+    justify-content: center;
+    margin-bottom: 147px;
+  }
+
+  .featured-products__media {
+    height: 340px;
+  }
+
+  .featured-products__card {
+    max-width: none;
   }
 }

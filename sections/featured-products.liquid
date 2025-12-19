@@ -48,22 +48,23 @@
 
                   <div class="featured-products__meta">
                     <p class="featured-products__title">{{ product.title | escape }}</p>
-                    <p class="featured-products__price">{{ product.price | money }}</p>
                   </div>
                 </a>
 
-                <button
-                  class="featured-products__add button button--primary"
-                  type="button"
-                  data-variant-id="{{ v.id }}"
-                  {% unless v.available %}disabled{% endunless %}
-                >
-                  {% if v.available %}
-                    {{ 'products.product.add_to_cart' | t }}
-                  {% else %}
-                    {{ 'products.product.sold_out' | t }}
-                  {% endif %}
-                </button>
+                <div class="featured-products__add-wrapper">
+                  <button
+                    class="featured-products__add button button--primary"
+                    type="button"
+                    data-variant-id="{{ v.id }}"
+                    {% unless v.available %}disabled{% endunless %}
+                  >
+                    {% if v.available %}
+                      Add to cart – {{ v.price | money_without_trailing_zeros }}
+                    {% else %}
+                      {{ 'products.product.sold_out' | t }}
+                    {% endif %}
+                  </button>
+                </div>
               </li>
 
               {% assign shown = shown | plus: 1 %}
